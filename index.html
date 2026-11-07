@@ -30,8 +30,8 @@
             <p class="text-sm text-gray-500 mt-2 font-medium">Daftar untuk mengakses SIAKAD</p>
         </div>
 
-        <!-- Form Register -->
-        <form action="login.html" method="GET" class="space-y-5">
+        <!-- Form Register (Diperbarui) -->
+        <form id="registerForm" class="space-y-5">
             <div>
                 <label for="nama" class="block text-sm font-semibold text-gray-700 mb-2">Nama Lengkap</label>
                 <div class="relative group">
@@ -40,7 +40,7 @@
                     </div>
                     <input type="text" id="nama" name="nama" required
                         class="block w-full pl-11 pr-4 py-3.5 bg-white/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white text-sm transition-all duration-300"
-                        placeholder="Contoh: Putri Sihombing">
+                        placeholder="Contoh: Dias Purba">
                 </div>
             </div>
 
@@ -50,9 +50,10 @@
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <i class="fas fa-user text-gray-400 group-focus-within:text-blue-500 transition-colors"></i>
                     </div>
-                    <input type="text" id="nim" name="nim" required
+                    <!-- Ditambahkan validasi minlength, maxlength, pattern khusus 10 angka -->
+                    <input type="text" id="nim" name="nim" required minlength="10" maxlength="10" pattern="\d{10}" title="NIM harus 10 digit angka"
                         class="block w-full pl-11 pr-4 py-3.5 bg-white/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white text-sm transition-all duration-300"
-                        placeholder="Contoh: 524111022">
+                        placeholder="Contoh: 5241110222">
                 </div>
             </div>
 
@@ -62,7 +63,8 @@
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <i class="fas fa-lock text-gray-400 group-focus-within:text-blue-500 transition-colors"></i>
                     </div>
-                    <input type="password" id="password" name="password" required
+                    <!-- Ditambahkan validasi minlength 8 karakter -->
+                    <input type="password" id="password" name="password" required minlength="8" title="Minimal 8 karakter"
                         class="block w-full pl-11 pr-4 py-3.5 bg-white/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white text-sm transition-all duration-300"
                         placeholder="Minimal 8 karakter">
                 </div>
@@ -80,5 +82,43 @@
         </div>
     </div>
 
+    <!-- Script Local Storage untuk Registrasi -->
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Mencegah pindah halaman otomatis
+            
+            const nama = document.getElementById('nama').value;
+            const nim = document.getElementById('nim').value;
+            const password = document.getElementById('password').value;
+
+            // Validasi ekstra (berjaga-jaga)
+            if (nim.length !== 10 || isNaN(nim)) {
+                alert("NIM harus berupa 10 digit angka!");
+                return;
+            }
+            if (password.length < 8) {
+                alert("Kata sandi minimal 8 karakter!");
+                return;
+            }
+
+            // Ambil database pengguna yang sudah ada di memori, atau buat array baru
+            let users = JSON.parse(localStorage.getItem('db_users')) || [];
+            
+            // Cek apakah NIM sudah pernah didaftarkan
+            const isExist = users.find(u => u.nim === nim);
+            if (isExist) {
+                alert("NIM ini sudah terdaftar! Silakan langsung login.");
+                return;
+            }
+
+            // Simpan data pendaftar baru ke "Database" Local Storage
+            users.push({ nama: nama, nim: nim, password: password });
+            localStorage.setItem('db_users', JSON.stringify(users));
+
+            // Munculkan notifikasi sukses lalu arahkan ke halaman login
+            alert("Akun berhasil dibuat! Silakan login dengan NIM dan Kata Sandi Anda.");
+            window.location.href = 'login.html'; 
+        });
+    </script>
 </body>
 </html>
